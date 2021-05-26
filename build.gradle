@@ -1,0 +1,134 @@
+plugins {
+    id "io.freefair.lombok" version "6.0.0-m2"
+    id 'idea'
+    id 'java'
+    id 'maven'
+    id 'signing'
+    id 'java-library'
+    id 'maven-publish'
+    id 'jacoco'
+    id "org.owasp.dependencycheck" version "6.1.5"
+}
+
+group = 'io.github.cshunsinger'
+version = project.hasProperty('version') ? project.getProperty('version') : 'dev'
+description = """A Java library which can automatically generate bytecode to apply non-null data from one object to another."""
+
+boolean isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.maven.apache.org/maven2" }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ["-parameters"]
+}
+
+jacoco {
+    toolVersion = "0.8.6"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
+}
+
+def junit_jupiter = '5.7.0'
+
+dependencies {
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+
+    implementation group: 'io.github.cshunsinger', name: 'asmsauce-core', version: '0.8.2'
+
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: junit_jupiter
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_jupiter
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.5.2'
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.5.13'
+}
+
+check.finalizedBy jacocoTestReport
+
+task getProjectGroup {
+    doLast {
+        println project.group
+    }
+}
+task getProjectDescription {
+    doLast {
+        println project.description
+    }
+}
+
+publishing {
+    publications {
+        create("J-Applicator", MavenPublication.class) {
+            artifactId = 'j-applicator'
+            from(components['java'])
+            pom {
+                name.set(rootProject.name)
+                description.set(project.description)
+                url.set("https://github.com/cshunsinger/J-Applicator")
+                inceptionYear.set("2021")
+
+                developers {
+                    developer {
+                        name.set("Clayton Hunsinger")
+                        email.set("c@rishall.com")
+                    }
+                }
+
+                licenses {
+                    license {
+                        name.set("GNU General Public License v3.0")
+                        url.set("https://github.com/cshunsinger/J-Applicator/blob/master/LICENSE")
+                        distribution.set("repo")
+                    }
+                }
+
+                scm {
+                    url.set("https://github.com/cshunsinger/J-Applicator")
+                    connection.set("scm:git:git@github.com:cshunsinger/J-Applicator.git")
+                    developerConnection.set("scm:git:ssh:git@github.com:cshunsinger/J-Applicator.git")
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "SonatypeOSS"
+            credentials {
+                username = project.hasProperty("sonatypeUsername") ? (project.property("sonatypeUsername") as String) : "N/A"
+                password = project.hasProperty("sonatypePassword") ? (project.property("sonatypePassword") as String) : "N/A"
+            }
+
+            String releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            String snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = isReleaseVersion ? releasesRepoUrl : snapshotsRepoUrl
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications["J-Applicator"])
+}
