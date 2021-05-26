@@ -1,9 +1,9 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
-import io.github.cshunsinger.japplicator.FieldIdentifier;
+import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.HeadOn;
-import io.github.cshunsinger.japplicator.Nested;
+import io.github.cshunsinger.japplicator.annotation.Nested;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;

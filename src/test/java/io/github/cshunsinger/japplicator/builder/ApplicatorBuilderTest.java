@@ -1,9 +1,9 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
-import io.github.cshunsinger.japplicator.FieldIdentifier;
+import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.HeadOn;
-import io.github.cshunsinger.japplicator.Nested;
+import io.github.cshunsinger.japplicator.annotation.Nested;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,12 +35,12 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Create a new destination object when null is provided as the destination object.")
     public void createNewDestinationObjectWithValueFromOtherObject() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
+        HeadOn<BasicTestFromClass, BasicTestToClass> headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
 
         BasicTestFromClass from = new BasicTestFromClass();
         from.setTestString("MyTestString");
 
-        BasicTestToClass to = (BasicTestToClass)headOn.applyDirectlyToTheForehead(from, null);
+        BasicTestToClass to = headOn.applyDirectlyToTheForehead(from, null);
         assertThat(to, allOf(
             notNullValue(),
             hasProperty("testString", is("MyTestString"))
@@ -50,7 +50,7 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Update fields of an existing non-null destination with non-null fields from the source object.")
     public void overwriteDestinationFieldWhenSourceFieldIsNotNull() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
+        HeadOn<BasicTestFromClass, BasicTestToClass> headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
 
         BasicTestFromClass from = new BasicTestFromClass();
         from.setTestString("NewTestString");
@@ -64,7 +64,7 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Do not set fields of the destination object to null if the field in the from object is null.")
     public void doNotOverwriteDestinationFieldWithNull() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
+        HeadOn<BasicTestFromClass, BasicTestToClass> headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
 
         BasicTestFromClass from = new BasicTestFromClass();
         BasicTestToClass to = new BasicTestToClass();
@@ -105,11 +105,13 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Return the destination parameter if the source object parameter is null.")
     public void returnDestinationParameterValueWhenSourceParameterIsNull() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
-        HeadOn nonCooperativeHeadOn = new ApplicatorBuilder<>(BasicTestFromClass.class, NonCooperativeBasicTestClass.class).build();
+        HeadOn<BasicTestFromClass, BasicTestToClass> headOn =
+            new ApplicatorBuilder<>(BasicTestFromClass.class, BasicTestToClass.class).build();
+        HeadOn<BasicTestFromClass, NonCooperativeBasicTestClass> nonCooperativeHeadOn =
+            new ApplicatorBuilder<>(BasicTestFromClass.class, NonCooperativeBasicTestClass.class).build();
 
         //If destination and source are both null, and if the destination type can be constructed, return a new instance
-        assertThat((BasicTestToClass)headOn.applyDirectlyToTheForehead(null, null), notNullValue(BasicTestToClass.class));
+        assertThat(headOn.applyDirectlyToTheForehead(null, null), notNullValue(BasicTestToClass.class));
 
         //If the destination and source are both null, and if the destination type CANNOT be constructed, return null
         assertThat(nonCooperativeHeadOn.applyDirectlyToTheForehead(null, null), nullValue());
@@ -126,7 +128,8 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Do not attempt to override a destination field if no setter method is available.")
     public void doNotThrowShitFitIfIdentifiedFieldIsLackingSetterMethod() {
-        HeadOn nonCooperativeHeadOn = new ApplicatorBuilder<>(BasicTestFromClass.class, NonCooperativeBasicTestClass.class).build();
+        HeadOn<BasicTestFromClass, NonCooperativeBasicTestClass> nonCooperativeHeadOn =
+            new ApplicatorBuilder<>(BasicTestFromClass.class, NonCooperativeBasicTestClass.class).build();
 
         BasicTestFromClass from = new BasicTestFromClass();
         from.setTestString("NewTestString");
@@ -202,7 +205,8 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Handle nested fields in both the source and destination objects when overriding source values onto the destination object.")
     public void overwriteMultipleAndNestedFieldsOnDestinationObjectFromSourceObjectFields() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicSourceWithNested.class, BasicDestinationWithNested.class).build();
+        HeadOn<BasicSourceWithNested, BasicDestinationWithNested> headOn =
+            new ApplicatorBuilder<>(BasicSourceWithNested.class, BasicDestinationWithNested.class).build();
 
         //The values being set up
         String first = "FirstValue";
@@ -245,7 +249,8 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Handle constructing new objects for nested fields when constructable and skip null non-constructable nested fields.")
     public void handleNullConstructableAndNullNonConstructableFieldValues() {
-        HeadOn headOn = new ApplicatorBuilder<>(BasicSourceWithNested.class, BasicDestinationWithNested.class).build();
+        HeadOn<BasicSourceWithNested, BasicDestinationWithNested> headOn =
+            new ApplicatorBuilder<>(BasicSourceWithNested.class, BasicDestinationWithNested.class).build();
 
         //The values being set up
         String first = "FirstValue";
@@ -262,7 +267,7 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
         sourceNested.setThird(third);
         sourceNested.setFourth(fourth);
 
-        BasicDestinationWithNested destination = (BasicDestinationWithNested)headOn.applyDirectlyToTheForehead(source, null);
+        BasicDestinationWithNested destination = headOn.applyDirectlyToTheForehead(source, null);
         assertThat(destination, allOf(
             notNullValue(),
             hasProperty("first", is(first)),
@@ -368,7 +373,8 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Test updating a deeply nested destination field with a deeply nested non-null source field.")
     public void handleUpdatingDestinationObjectFromSourceObjectWhenBothAreNestedDeeperThanTheKolaSuperDeepBorehole() {
-        HeadOn headOn = new ApplicatorBuilder<>(ObjectWithDeepNesting.class, ObjectWithDeepNesting.class).build();
+        HeadOn<ObjectWithDeepNesting, ObjectWithDeepNesting> headOn =
+            new ApplicatorBuilder<>(ObjectWithDeepNesting.class, ObjectWithDeepNesting.class).build();
 
         //Test Values
         String firstString = "Test First Value";
@@ -428,7 +434,8 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
     @Test
     @DisplayName("Test deep-copying a deeply nested source object and skip null nested non-constructable fields.")
     public void deepCopyVeryDeeplyNestedSourceObjectAndSkipNullNestedNonConstructableFields() {
-        HeadOn headOn = new ApplicatorBuilder<>(ObjectWithDeepNesting.class, ObjectWithDeepNesting.class).build();
+        HeadOn<ObjectWithDeepNesting, ObjectWithDeepNesting> headOn =
+            new ApplicatorBuilder<>(ObjectWithDeepNesting.class, ObjectWithDeepNesting.class).build();
 
         //Test Values
         String firstString = "Test First Value";
@@ -448,7 +455,7 @@ public class ApplicatorBuilderTest extends BaseUnitTest {
             )
         ));
 
-        ObjectWithDeepNesting destination = (ObjectWithDeepNesting)headOn.applyDirectlyToTheForehead(source, null);
+        ObjectWithDeepNesting destination = headOn.applyDirectlyToTheForehead(source, null);
         assertThat(destination, allOf(
             notNullValue(),
             hasProperty("nested",

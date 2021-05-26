@@ -209,6 +209,19 @@ class ReflectionsUtilsTest extends BaseUnitTest {
         );
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "isTestBooleanField,testBooleanField",
+        "getTestField,testField",
+        "setTestField,testField",
+        "methodWithParam,methodWithParam"
+    })
+    public void test_findFieldNameFromMethodName(String methodName, String expectedFieldName) {
+        Method testMethod = findTestMethod(methodName);
+        String fieldName = ReflectionsUtils.fieldNameFromMethodName(testMethod);
+        assertThat(fieldName, is(expectedFieldName));
+    }
+
     private static Method findTestMethod(String methodName) {
         return Stream.of(TestMethodsContainer.class.getDeclaredMethods())
             .filter(method -> method.getName().equals(methodName))

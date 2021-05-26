@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static io.github.cshunsinger.asmsauce.ConstructorNode.constructor;
 import static io.github.cshunsinger.asmsauce.DefinitionBuilders.*;
 import static io.github.cshunsinger.asmsauce.MethodNode.method;
 import static io.github.cshunsinger.asmsauce.code.CodeBuilders.*;
@@ -16,27 +15,23 @@ import static io.github.cshunsinger.asmsauce.modifiers.AccessModifiers.publicOnl
 
 public class ApplicatorBuilder<Src, Dest> {
     private static final String APPLICATOR_METHOD_NAME = HeadOn.class.getMethods()[0].getName();
-    private static final int P_SRC = 1;
-    private static final int P_DEST = 2;
 
+    @SuppressWarnings("rawtypes")
     private final AsmClassBuilder<HeadOn> builder;
 
     public ApplicatorBuilder(Class<Src> sourceClass, Class<Dest> destinationClass) {
         List<SourceNode> sources = SourceNode.createSources(sourceClass);
 
+        final String source = "source";
+        final String destination = "destination";
+
         List<CodeInsnBuilderLike> sourceBuildersList = sources.stream()
-            .map(node -> node.buildSource(destinationClass, P_SRC, P_DEST))
+            .map(node -> node.buildSource(destinationClass, source, destination))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
         builder = new AsmClassBuilder<>(HeadOn.class)
-            .withConstructor(constructor(publicOnly(), noParameters(), //Empty constructor
-                //super();
-                superConstructor(HeadOn.class, noParameters()),
-                //return;
-                returnVoid()
-            ))
-            .withMethod(method(publicOnly(), name(APPLICATOR_METHOD_NAME), parameters(Object.class, Object.class), type(Object.class),
+            .withMethod(method(publicOnly(), name(APPLICATOR_METHOD_NAME), parameters(p(source, Object.class), p(destination, Object.class)), type(Object.class),
                 /*
                  * public Object applyDirectlyToTheForehead(Object source, Object destination) {
                  *     if(destination == null) {
@@ -56,33 +51,34 @@ public class ApplicatorBuilder<Src, Dest> {
                  */
 
                 //Just come casting
-                setVar(P_SRC, cast(sourceClass, getVar(P_SRC))),
-                setVar(P_DEST, cast(destinationClass, getVar(P_DEST))),
+                setVar(source, cast(sourceClass, getVar(source))),
+                setVar(destination, cast(destinationClass, getVar(destination))),
 
                 //if(destination == null)
-                if_(getVar(P_DEST).isNull()).then(
+                if_(getVar(destination).isNull()).then(
                     AsmUtils.canBeConstructed(destinationClass) ?
                         //destination = new Object();
-                        setVar(P_DEST, instantiate(destinationClass, noParameters())) :
+                        setVar(destination, instantiate(destinationClass, noParameters())) :
                         //return null;
                         returnValue(stackNull())
                 ),
 
                 //if(source == null)
-                if_(getVar(P_SRC).isNull()).then(
+                if_(getVar(source).isNull()).then(
                     //return destination;
-                    returnValue(getVar(P_DEST))
+                    returnValue(getVar(destination))
                 ),
 
                 //... next steps provided by source nodes ...
-                sourceBuildersList.isEmpty() ? null : block(sourceBuildersList.toArray(CodeInsnBuilderLike[]::new)),
+                block(sourceBuildersList.toArray(CodeInsnBuilderLike[]::new)),
 
                 //return destination;
-                returnValue(getVar(P_DEST))
+                returnValue(getVar(destination))
             ));
     }
 
-    public HeadOn build() {
-        return builder.buildInstance();
+    @SuppressWarnings("unchecked")
+    public HeadOn<Src, Dest> build() {
+        return (HeadOn<Src, Dest>)builder.buildInstance();
     }
 }

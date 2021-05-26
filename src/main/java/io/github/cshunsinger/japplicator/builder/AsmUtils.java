@@ -1,6 +1,6 @@
 package io.github.cshunsinger.japplicator.builder;
 
-import io.github.cshunsinger.japplicator.FieldIdentifier;
+import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.reflect.ConstructorUtils;

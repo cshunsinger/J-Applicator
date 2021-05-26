@@ -1,6 +1,6 @@
 package io.github.cshunsinger.japplicator.builder;
 
-import io.github.cshunsinger.japplicator.FieldIdentifier;
+import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.HeadOn;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -123,7 +123,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertByteToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromByte.class, TestDestinationModel.class).build();
+        HeadOn<TestFromByte, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromByte.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         byte testValue = (byte)(nextInt() % Byte.MAX_VALUE);
@@ -155,7 +155,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertCharacterToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromCharacter.class, TestDestinationModel.class).build();
+        HeadOn<TestFromCharacter, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromCharacter.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         char testValue = (char)(nextInt() % Character.MAX_VALUE);
@@ -187,7 +187,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertShortToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromShort.class, TestDestinationModel.class).build();
+        HeadOn<TestFromShort, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromShort.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         short testValue = (short)(nextInt() % Short.MAX_VALUE);
@@ -219,7 +219,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertIntegerToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromInteger.class, TestDestinationModel.class).build();
+        HeadOn<TestFromInteger, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromInteger.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         int testValue = nextInt();
@@ -251,7 +251,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertLongToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromLong.class, TestDestinationModel.class).build();
+        HeadOn<TestFromLong, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromLong.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         long testValue = nextLong();
@@ -283,7 +283,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertFloatToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromFloat.class, TestDestinationModel.class).build();
+        HeadOn<TestFromFloat, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromFloat.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         float testValue = nextFloat();
@@ -315,7 +315,7 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertDoubleToOtherTypes() {
-        HeadOn converter = new ApplicatorBuilder<>(TestFromDouble.class, TestDestinationModel.class).build();
+        HeadOn<TestFromDouble, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromDouble.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         double testValue = nextDouble();
@@ -370,13 +370,13 @@ public class SingleValueConverterTest {
 
     @Test
     public void testConversionOfObjectToStringUsingToString() {
-        HeadOn applicator = new ApplicatorBuilder<>(TestFromObject.class, TestDestinationWithString.class).build();
+        HeadOn<TestFromObject, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromObject.class, TestDestinationWithString.class).build();
 
         Object testObj = new Object();
         String expectedString = testObj.toString();
 
         TestFromObject testSource = new TestFromObject(testObj);
-        TestDestinationWithString testDestination = (TestDestinationWithString)applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithString testDestination = applicator.applyDirectlyToTheForehead(testSource, null);
 
         assertThat(testDestination, allOf(
             hasProperty("value", is(expectedString)),
@@ -386,13 +386,13 @@ public class SingleValueConverterTest {
 
     @Test
     public void testConversionOfCharArrayToString() {
-        HeadOn applicator = new ApplicatorBuilder<>(TestFromCharArray.class, TestDestinationWithString.class).build();
+        HeadOn<TestFromCharArray, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromCharArray.class, TestDestinationWithString.class).build();
 
         String expectedString = "My Favorite Test String";
         char[] stringChars = expectedString.toCharArray();
 
         TestFromCharArray testSource = new TestFromCharArray(stringChars);
-        TestDestinationWithString testDestination = (TestDestinationWithString)applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithString testDestination = applicator.applyDirectlyToTheForehead(testSource, null);
 
         assertThat(testDestination, allOf(
             hasProperty("value", is(expectedString)),

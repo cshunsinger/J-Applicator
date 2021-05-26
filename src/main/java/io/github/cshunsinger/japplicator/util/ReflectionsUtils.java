@@ -190,4 +190,14 @@ public class ReflectionsUtils {
         else
             return null;
     }
+
+    public static String fieldNameFromMethodName(Method method) {
+        String methodName = method.getName();
+        if(methodName.startsWith("get") || methodName.startsWith("set"))
+            methodName = methodName.substring(3);
+        else if(methodName.startsWith("is"))
+            methodName = methodName.substring(2);
+
+        return StringUtils.uncapitalize(methodName);
+    }
 }

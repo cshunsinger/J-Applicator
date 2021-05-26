@@ -1,8 +1,8 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.asmsauce.code.CodeInsnBuilderLike;
-import io.github.cshunsinger.japplicator.FieldIdentifier;
-import io.github.cshunsinger.japplicator.Nested;
+import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
+import io.github.cshunsinger.japplicator.annotation.Nested;
 import io.github.cshunsinger.japplicator.util.ReflectionsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import static io.github.cshunsinger.asmsauce.code.CodeBuilders.*;
 import static io.github.cshunsinger.japplicator.builder.AsmUtils.memberIdentifierName;
 import static io.github.cshunsinger.japplicator.util.ReflectionsUtils.findGetterMethodForField;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,8 +35,8 @@ public class SourceNode {
      * @param fromVar The index of the local variable that holds the current source object (at whatever the current level of nesting)
      * @param toParam The index of the destination parameter of the method being generated.
      */
-    public CodeInsnBuilderLike buildSource(Class<?> destinationClass, int fromVar, int toParam) {
-        int nextFromVar = fromVar < toParam ? toParam+1:fromVar+1;
+    public CodeInsnBuilderLike buildSource(Class<?> destinationClass, String fromVar, String toParam) {
+        String nextFromVar = fromVar + capitalize(fieldName);
 
         if(fieldName == null) {
             //This is a nested step

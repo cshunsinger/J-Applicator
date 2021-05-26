@@ -14,10 +14,6 @@ import static org.apache.commons.lang3.ClassUtils.*;
  */
 public class SingleValueConverter {
     public static CodeInsnBuilderLike createValueConverter(CodeInsnBuilderLike valueBuilder, Class<?> sourceType, Class<?> destType) {
-        //If types match then no further conversion is necessary
-        if(sourceType == destType)
-            return valueBuilder;
-
         //If the source and destination types are both primitive or wrapper types then they can be converted
         if(isPrimitiveOrWrapper(sourceType) && isPrimitiveOrWrapper(destType))
             return numericToNumericConversionStep(valueBuilder, sourceType, destType);
