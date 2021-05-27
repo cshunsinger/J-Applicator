@@ -2,6 +2,7 @@ package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.exception.TypeConversionException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -415,13 +416,13 @@ public class SingleValueConverterTest {
 
     @Test
     public void throwIllegalArgumentException_typeCannotBeConvertedToOtherType() {
-        IllegalArgumentException ex = assertThrows(
-            IllegalArgumentException.class,
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
             () -> new ApplicatorBuilder<>(SourceTestType.class, DestinationTestType.class).build()
         );
 
         assertThat(ex, hasProperty("message",
-            is("No conversion exists from type %s to type %s.".formatted(Object.class.getName(), int.class.getName()))
+            is("Could not convert value from type %s to type %s.".formatted(Object.class.getName(), int.class.getName()))
         ));
     }
 }

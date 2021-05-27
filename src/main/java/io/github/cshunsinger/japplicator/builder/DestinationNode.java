@@ -3,6 +3,9 @@ package io.github.cshunsinger.japplicator.builder;
 import io.github.cshunsinger.asmsauce.code.CodeInsnBuilderLike;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.annotation.Nested;
+import io.github.cshunsinger.japplicator.exception.TypeConversionException;
+import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
+import io.github.cshunsinger.japplicator.exception.WildcardTypeUnsupportedException;
 import io.github.cshunsinger.japplicator.util.ReflectionsUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -42,7 +46,7 @@ public class DestinationNode {
      * @param fromVar The name of the local variable containing a non-null source value.
      * @return The code to set destination object values.
      */
-    public CodeInsnBuilderLike buildDestination(Class<?> fromType, String toVar, String fromVar) {
+    public CodeInsnBuilderLike buildDestination(Type fromType, String toVar, String fromVar) {
         if(nestedDestinations != null) {
             //Nested situation
             String nextToVar = toVar + capitalize(fieldNameFromMethodName(getter));
@@ -100,9 +104,20 @@ public class DestinationNode {
         else {
             //Non-nested situation
             //toVar.setSomeValue((cast/autoboxed)fromVar);
-            Class<?> destType = setter.getParameterTypes()[0];
-            CodeInsnBuilderLike convertedSourceValue = ValueConverters.createValueConverter(fromVar, fromType, destType);
-            return getVar(toVar).invoke(setter.getDeclaringClass(), setter, convertedSourceValue);
+            Type destType = setter.getGenericParameterTypes()[0];
+            try {
+                CodeInsnBuilderLike convertedSourceValue = ValueConverters.createValueConverter(fromVar, fromType, destType);
+                if(convertedSourceValue == null)
+                    throw new TypeConversionException(fromType, destType);
+
+                return getVar(toVar).invoke(setter.getDeclaringClass(), setter, convertedSourceValue);
+            }
+            catch(WildcardTypeUnsupportedException ex) {
+                throw new TypeConversionException("Wildcard generic types are unsupported", fromType, destType, ex);
+            }
+            catch(TypeVariableUnsupportedException ex) {
+                throw new TypeConversionException("Type variable generic types are unsupported", fromType, destType, ex);
+            }
         }
     }
 

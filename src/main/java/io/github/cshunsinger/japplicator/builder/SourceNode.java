@@ -69,7 +69,7 @@ public class SourceNode {
             //... destination code steps ...
             List<CodeInsnBuilderLike> destinationCodeBuilders = DestinationNode.createDestinationsForField(fieldName, destinationClass)
                 .stream()
-                .map(node -> node.buildDestination(getter.getReturnType(), toParam, nextFromVar))
+                .map(node -> node.buildDestination(getter.getGenericReturnType(), toParam, nextFromVar))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 

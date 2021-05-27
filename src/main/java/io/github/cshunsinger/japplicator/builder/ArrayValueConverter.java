@@ -1,16 +1,22 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.asmsauce.code.CodeInsnBuilderLike;
+import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
+import io.github.cshunsinger.japplicator.exception.WildcardTypeUnsupportedException;
+import org.apache.commons.lang3.reflect.TypeUtils;
+
+import java.lang.reflect.Type;
 
 import static io.github.cshunsinger.asmsauce.code.CodeBuilders.*;
 
 public class ArrayValueConverter {
-    public static CodeInsnBuilderLike createValueConverter(String sourceArrayVar, Class<?> sourceArrayType, Class<?> destArrayType) {
-        if(!sourceArrayType.isArray() || !destArrayType.isArray())
+    public static CodeInsnBuilderLike createArrayToArrayValueConverter(String sourceArrayVar, Type sourceArrayType, Type destArrayType) throws WildcardTypeUnsupportedException, TypeVariableUnsupportedException {
+        if(!TypeUtils.isArrayType(sourceArrayType) || !TypeUtils.isArrayType(destArrayType))
             return null; //This value converter method only handles when source and destination classes are both array types
 
-        final Class<?> sourceComponentType = sourceArrayType.getComponentType();
-        final Class<?> destComponentType = destArrayType.getComponentType();
+        final Type sourceComponentType = TypeUtils.getArrayComponentType(sourceArrayType);
+        final Type destComponentType = TypeUtils.getArrayComponentType(destArrayType);
+        final Class<?> destComponentClass = TypeUtils.getRawType(destComponentType, null);
         final String sourceValue = sourceArrayVar + "Value";
         final String arrayLength = "arrayLength";
         final String arrayIndex = "arrayIndex";
@@ -20,7 +26,7 @@ public class ArrayValueConverter {
         return ternary(getVar(sourceArrayVar).length().gt(literal(0))).thenCalculate(
             setVar(arrayLength, getVar(sourceArrayVar).length()), //int arrayLength = sourceArrayVar.length;
             setVar(arrayIndex, literal(0)), //int arrayIndex = 0;
-            setVar(destinationArray, newArray(destComponentType, getVar(arrayLength))), //Value[] newArray = new Value[arrayLength];
+            setVar(destinationArray, newArray(destComponentClass, getVar(arrayLength))), //Value[] newArray = new Value[arrayLength];
 
             //while(arrayIndex < arrayLength) { ... }
             while_(getVar(arrayIndex).lt(getVar(arrayLength))).do_(
@@ -41,7 +47,7 @@ public class ArrayValueConverter {
             getVar(destinationArray)
         ).elseCalculate(
             //If no elements existed in the source array, then this ternary else-branch will return an empty destination array
-            newArray(destComponentType, literal(0))
+            newArray(destComponentClass, literal(0))
         );
     }
 }

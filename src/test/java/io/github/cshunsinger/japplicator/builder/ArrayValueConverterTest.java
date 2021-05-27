@@ -46,4 +46,16 @@ public class ArrayValueConverterTest {
             hasProperty("strings", arrayContaining("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
         ));
     }
+
+    @Test
+    public void test_conversionOfEmptyArrayOfValuesIntoAnotherEmptyArrayOfValues() {
+        HeadOn<TestSourceWithArray, TestDestinationWithArray> applicator =
+            new ApplicatorBuilder<>(TestSourceWithArray.class, TestDestinationWithArray.class).build();
+
+        TestSourceWithArray testSource = new TestSourceWithArray(new int[0]);
+
+        TestDestinationWithArray result = applicator.applyDirectlyToTheForehead(testSource, null);
+        assertThat(result.getInts().length, is(0));
+        assertThat(result.getStrings().length, is(0));
+    }
 }
