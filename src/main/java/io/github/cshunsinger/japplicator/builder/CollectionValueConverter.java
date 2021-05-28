@@ -55,9 +55,10 @@ public class CollectionValueConverter {
             throw new TypeConversionException(badCollectionReason, sourceType, destType, null);
         }
 
+        Class<?> sourceElementClass = TypeUtils.getRawType(sourceElementType, null);
         final String sourceValue = sourceLocalVar + "Value";
-        final String newCollection = "newCollection";
-        final String iterator = "iterator";
+        final String newCollection = sourceLocalVar + "NewCollection";
+        final String iterator = sourceLocalVar + "Iterator";
 
         //!sourceLocalVar.isEmpty() ? <thenCalculate> : <elseCalculate>
         return ternary(getVar(sourceLocalVar).invoke("isEmpty").isFalse())
@@ -67,9 +68,12 @@ public class CollectionValueConverter {
 
                 //while(iterator.hasNext()) { ... }
                 while_(getVar(iterator).invoke("hasNext").isTrue()).do_(
-                    setVar(sourceValue, getVar(iterator).invoke("next")), //Value sourceValue = iterator.next();
+                    setVar(sourceValue, cast(sourceElementClass, getVar(iterator).invoke("next"))), //Value sourceValue = (Value)iterator.next();
                     getVar(newCollection).invoke("add", ValueConverters.createValueConverter(sourceValue, sourceElementType, destElementType))
-                )
+                ),
+
+                //Provide/"return" the newCollection from this side of the ternary statement
+                getVar(newCollection)
             )
             .elseCalculate( // <elseCalculate>
                 //Source collection is empty so create a new empty collection for the destination field
