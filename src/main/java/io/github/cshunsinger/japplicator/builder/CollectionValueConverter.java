@@ -48,14 +48,13 @@ public class CollectionValueConverter {
 
         //Determine the type of collection type which can be instantiated
         TypeDefinition concreteCollectionType = determineCollectionType(type(sourceClass), type(destClass));
-        if(!AsmUtils.containsEmptyConstructor(concreteCollectionType.getType())) {
-            //Throw exception because the desired collection type cannot be instantiated
-            String badCollectionReason = "Collection type %s does not have a no-args constructor."
-                .formatted(concreteCollectionType.getType().getName());
-            throw new TypeConversionException(badCollectionReason, sourceType, destType, null);
-        }
+        validateNewCollectionType(concreteCollectionType, sourceType, destType);
 
         Class<?> sourceElementClass = TypeUtils.getRawType(sourceElementType, null);
+        if(sourceElementClass == null)
+            sourceElementClass = Object.class;
+
+        //Local variable names
         final String sourceValue = sourceLocalVar + "Value";
         final String newCollection = sourceLocalVar + "NewCollection";
         final String iterator = sourceLocalVar + "Iterator";
@@ -79,6 +78,61 @@ public class CollectionValueConverter {
                 //Source collection is empty so create a new empty collection for the destination field
                 instantiate(concreteCollectionType)
             );
+    }
+
+    public static CodeInsnBuilderLike createArrayToCollectionValueConverter(String sourceLocalVar, Type sourceType, Type destType) throws WildcardTypeUnsupportedException, TypeVariableUnsupportedException {
+        Class<?> sourceClass = TypeUtils.getRawType(sourceType, null);
+        Class<?> destinationClass = TypeUtils.getRawType(destType, null);
+
+        if(!sourceClass.isArray() || !Collection.class.isAssignableFrom(destinationClass))
+            return null; //This converter only works for array -> collection type
+
+        //Determine the source and destination component/element types
+        Class<?> sourceElementClass = sourceClass.getComponentType();
+        Type destElementType = ((ParameterizedType)destType).getActualTypeArguments()[0];
+
+        //Determine the type of collection type which can be instantiated
+        TypeDefinition concreteCollectionType = determineCollectionType(type(sourceClass), type(destinationClass));
+        validateNewCollectionType(concreteCollectionType, sourceType, destType);
+
+        //Local variable names
+        final String sourceValue = sourceLocalVar + "Value";
+        final String newCollection = "collectionFrom" + sourceLocalVar;
+        final String length = sourceLocalVar + "Length";
+        final String counter = sourceLocalVar + "Counter";
+
+        //!sourceLocalVar.length > 0 ? <thenCalculate> : <elseCalculate>
+        return ternary(getVar(sourceLocalVar).length().gt(literal(0)))
+            .thenCalculate( // <thenCalculate>
+                setVar(length, getVar(sourceLocalVar).length()), //int length = sourceLocalVar.length;
+                setVar(counter, literal(0)), //int counter = 0;
+                setVar(newCollection, instantiate(concreteCollectionType)), //Collection newCollection = new CollectionType()
+
+                //while(counter < length) { ... }
+                while_(getVar(counter).lt(getVar(length))).do_(
+                    setVar(sourceValue, getVar(sourceLocalVar).get(getVar(counter))), //SrcType sourceValue = sourceLocalVar[counter];
+                    getVar(newCollection).invoke("add", //newCollection.add(...)
+                        ValueConverters.createValueConverter(sourceValue, sourceElementClass, destElementType)
+                    ),
+
+                    setVar(counter, getVar(counter).add(literal(1))) //counter = counter + 1;
+                ),
+
+                getVar(newCollection)
+            )
+            .elseCalculate( // <elseCalculate>
+                //Source array is empty so create a new empty collection
+                instantiate(concreteCollectionType)
+            );
+    }
+
+    private static void validateNewCollectionType(TypeDefinition concreteCollectionType, Type sourceType, Type destType) {
+        if(!AsmUtils.containsEmptyConstructor(concreteCollectionType.getType())) {
+            //Throw exception because the desired collection type cannot be instantiated
+            String badCollectionReason = "Collection type %s does not have a no-args constructor."
+                .formatted(concreteCollectionType.getType().getName());
+            throw new TypeConversionException(badCollectionReason, sourceType, destType, null);
+        }
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")

@@ -20,12 +20,23 @@ public class ValueConverters {
 
         CodeInsnBuilderLike codeBuilder;
 
+        //Collection -> Collection conversion
         if((codeBuilder = CollectionValueConverter.createCollectionToCollectionValueConverter(sourceLocalVar, sourceType, destType)) != null)
             return codeBuilder;
 
+        //Array -> Array conversion
         if((codeBuilder = ArrayValueConverter.createArrayToArrayValueConverter(sourceLocalVar, sourceType, destType)) != null)
             return codeBuilder;
 
+        //Collection -> Array conversion
+        if((codeBuilder = ArrayValueConverter.createCollectionToArrayValueConverter(sourceLocalVar, sourceType, destType)) != null)
+            return codeBuilder;
+
+        //Array -> Collection conversion
+        if((codeBuilder = CollectionValueConverter.createArrayToCollectionValueConverter(sourceLocalVar, sourceType, destType)) != null)
+            return codeBuilder;
+
+        //Single value -> single value conversion
         return SingleValueConverter.createSingletonValueConverter(getVar(sourceLocalVar), sourceType, destType);
     }
 }

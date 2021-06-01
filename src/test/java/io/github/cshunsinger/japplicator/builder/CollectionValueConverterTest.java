@@ -4,6 +4,8 @@ import io.github.cshunsinger.japplicator.BaseUnitTest;
 import io.github.cshunsinger.japplicator.HeadOn;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.exception.TypeConversionException;
+import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
+import io.github.cshunsinger.japplicator.exception.WildcardTypeUnsupportedException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,6 @@ import lombok.Setter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -264,5 +265,105 @@ public class CollectionValueConverterTest extends BaseUnitTest {
             instanceOf(LinkedList.class),
             contains(1, 2, 3, 4, 5)
         )));
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ConcreteCollectionTest {
+        @FieldIdentifier
+        private Set<Object> setData;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SourceWildcardCollection {
+        @FieldIdentifier("setData")
+        private Set<?> wildcardSet;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DestWildcardCollection {
+        @FieldIdentifier("setData")
+        private Set<?> wildcardSet;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SourceGenericCollection<T> {
+        @FieldIdentifier("setData")
+        private Set<T> wildcardSet;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DestGenericCollection<T> {
+        @FieldIdentifier("setData")
+        private Set<T> wildcardSet;
+    }
+
+    @Test
+    public void throwExceptionWhenSourceCollectionUsesWildcardParameter() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(ConcreteCollectionTest.class, DestWildcardCollection.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(WildcardTypeUnsupportedException.class)));
+    }
+
+    @Test
+    public void throwExceptionWhenDestinationCollectionUsesWildcardParameter() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(SourceWildcardCollection.class, ConcreteCollectionTest.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(WildcardTypeUnsupportedException.class)));
+    }
+
+    @Test
+    public void throwExceptionWhenSourceAndDestinationCollectionsUseWildcardParameters() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(SourceWildcardCollection.class, DestWildcardCollection.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(WildcardTypeUnsupportedException.class)));
+    }
+
+    @Test
+    public void throwExceptionWhenSourceCollectionUsesGenericTypeVariable() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(SourceGenericCollection.class, ConcreteCollectionTest.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(TypeVariableUnsupportedException.class)));
+    }
+
+    @Test
+    public void throwExceptionWhenDestinationCollectionUsesTypeVariable() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(ConcreteCollectionTest.class, DestGenericCollection.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(TypeVariableUnsupportedException.class)));
+    }
+
+    @Test
+    public void throwExceptionWhenSourceAndDestinationCollectionsUseTypeVariables() {
+        TypeConversionException ex = assertThrows(
+            TypeConversionException.class,
+            () -> new ApplicatorBuilder<>(SourceGenericCollection.class, DestGenericCollection.class)
+        );
+
+        assertThat(ex, hasProperty("cause", instanceOf(TypeVariableUnsupportedException.class)));
     }
 }

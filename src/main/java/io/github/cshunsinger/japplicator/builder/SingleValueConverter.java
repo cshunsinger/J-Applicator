@@ -112,6 +112,8 @@ public class SingleValueConverter {
             return primitiveToPrimitiveConversionStep(valueBuilder, sourceType, destType);
         else if(sourceType.isPrimitive())
             return primitiveToWrapperConversionStep(valueBuilder, sourceType, destType);
+        else if(destType.isPrimitive())
+            return wrapperToPrimitiveConversionStep(valueBuilder, sourceType, destType);
         else
             return wrapperToWrapperConversionStep(valueBuilder, sourceType, destType);
     }
