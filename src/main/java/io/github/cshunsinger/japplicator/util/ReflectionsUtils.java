@@ -34,6 +34,8 @@ public class ReflectionsUtils {
 
     /**
      * Generates the JVM bytecode representation of a method signature for a given method.
+     * @param method The method to generate a signature for.
+     * @return A String containing the signature of the provided method.
      */
     public static String generateJvmMethodSignature(Method method) {
         return generateJvmMethodSignature(method.getParameters(), method.getReturnType());
@@ -42,6 +44,8 @@ public class ReflectionsUtils {
     /**
      * Generates a classname favored by the JVM.
      * Basically gets the fully qualified classname of the given class, and replaces all periods with forward slashes.
+     * @param clazz The Java class to generate the jvm class name for.
+     * @return A String with the fully qualified JVM representation of the class name.
      */
     public static String jvmClassname(final Class<?> clazz) {
         return clazz.getName().replace('.', '/');
@@ -53,6 +57,8 @@ public class ReflectionsUtils {
      * For example, byte and int are B and I respectively.
      * For non-primitive classes, the definition is LjvmClassname;.
      * For array types, the definition is the same EXCEPT you add a [ to the front.
+     * @param clazz The class to produce the JVM type definition for.
+     * @return A String representation of the JVM type definition of the provided class.
      */
     public static String jvmTypeDefinition(final Class<?> clazz) {
         if(clazz.isArray()) {
@@ -70,6 +76,13 @@ public class ReflectionsUtils {
         return generateJvmMethodSignature(parameterTypes, returnType);
     }
 
+    /**
+     * Generates the JVM method signature of a method with the given list of parameter types and the given return type.
+     * This is the method to call to generate a method signature without having an actual Method object.
+     * @param parameterTypes An ordered list of method parameter types.
+     * @param returnType The return type of the method.
+     * @return A String containing the signature of a method with the given parameter and return types.
+     */
     public static String generateJvmMethodSignature(final List<Class<?>> parameterTypes, final Class<?> returnType) {
         final StringBuilder builder = new StringBuilder("(");
         for(final Class<?> paramType: parameterTypes) {
@@ -87,6 +100,11 @@ public class ReflectionsUtils {
      *   - Return type is not void
      *   - Method is not static
      *   - Method is public
+     *
+     * @param type The class in which to search for methods.
+     * @param field The field to use when finding a getter method.
+     * @return Returns a Method which meets the above criteria as a getter method for the provided field, or null if
+     * none could be found.
      */
     public static Method findGetterMethodForField(Class<?> type, Field field) {
         String fieldName = field.getName();
@@ -99,6 +117,12 @@ public class ReflectionsUtils {
         return valid ? getterMethod : null;
     }
 
+    /**
+     * Given a method, determines if that method is a valid getter method.
+     * @param getterMethod The method to test.
+     * @param methodName The name of the method, for logging purposes when getterMethod is null.
+     * @return True if the provided method meets the criteria for being a valid getter method. False otherwise.
+     */
     public static boolean isValidGetterMethod(Method getterMethod, String methodName) {
         String reason = getInvalidGetterMethodReason(getterMethod, methodName);
         if(reason == null) {
@@ -118,6 +142,10 @@ public class ReflectionsUtils {
      *   - No return value (void method)
      *   - Method is public
      *   - Method is not static
+     *
+     * @param type The class to search in for the setter method for the field.
+     * @param field The field for whom to find a valid setter method.
+     * @return Null if no setter method is found for the given field, otherwise the found setter method is returned.
      */
     public static Method findSetterMethodForField(Class<?> type, Field field) {
         Class<?> fieldType = field.getType();
@@ -132,10 +160,27 @@ public class ReflectionsUtils {
         return valid ? setterMethod : null;
     }
 
+    /**
+     * Determines if a setter method is actually a valid setter method by meeting the criteria of a setter method.
+     * @param setterMethod The method to test.
+     * @return True if the method is a valid setter method. False otherwise.
+     * @see #isValidSetterMethod(Method, String)
+     * @see #getInvalidSetterMethodReason(Method)
+     * @see #getInvalidSetterMethodReason(Method, String)
+     */
     public static boolean isValidSetterMethod(Method setterMethod) {
         return setterMethod != null && isValidSetterMethod(setterMethod, setterMethod.getName());
     }
 
+    /**
+     * Determines if a setter method is actually a valid setter method by meeting the criteria of a setter method.
+     * @param setterMethod The method to test.
+     * @param setterName The name of the setter method, for logging purposes when setterMethod is null.
+     * @return True if the method is a valid setter method. False otherwise.
+     * @see #isValidSetterMethod(Method)
+     * @see #getInvalidSetterMethodReason(Method)
+     * @see #getInvalidSetterMethodReason(Method, String)
+     */
     public static boolean isValidSetterMethod(Method setterMethod, String setterName) {
         String reason = getInvalidSetterMethodReason(setterMethod, setterName);
         if(reason == null) {
@@ -148,6 +193,16 @@ public class ReflectionsUtils {
         }
     }
 
+    /**
+     * Determines if a method is a valid setter method, and determines why said method is an invalid setter method if
+     * the method is not a valid setter.
+     * @param setterMethod The method to test.
+     * @return Null if the provided method is a valid setter method, otherwise a String explaining why the provided
+     * method is not a valid setter method is returned.
+     * @see #isValidSetterMethod(Method)
+     * @see #isValidSetterMethod(Method, String)
+     * @see #getInvalidSetterMethodReason(Method, String)
+     */
     public static String getInvalidSetterMethodReason(Method setterMethod) {
         if(setterMethod == null)
             return "Method is null.";
@@ -155,6 +210,17 @@ public class ReflectionsUtils {
             return getInvalidSetterMethodReason(setterMethod, setterMethod.getName());
     }
 
+    /**
+     * Determines if a method is a valid setter method, and determines why said method is an invalid setter method if
+     * the method is not a valid setter.
+     * @param setterMethod The method to test.
+     * @param setterName The name of the setter method, for logging reasons since setterMethod can be null.
+     * @return Null if the provided method is a valid setter method, otherwise a String explaining why the provided
+     * method is not a valid setter method is returned.
+     * @see #isValidSetterMethod(Method)
+     * @see #isValidSetterMethod(Method, String)
+     * @see #getInvalidSetterMethodReason(Method)
+     */
     public static String getInvalidSetterMethodReason(Method setterMethod, String setterName) {
         if(setterMethod == null)
             return "No setter method named " + setterName + " found.";
@@ -169,6 +235,15 @@ public class ReflectionsUtils {
             return null;
     }
 
+    /**
+     * Determines if a method is a valid getter method, and determines why said method is an invalid getter
+     * method if the method is not a valid getter.
+     * @param getterMethod The method to test.
+     * @return Null if the provided getterMethod is a valid getterMethod, otherwise a String explaining why the
+     * provided method is not a valid getter method is returned.
+     * @see #isValidGetterMethod(Method, String)
+     * @see #getInvalidGetterMethodReason(Method, String)
+     */
     public static String getInvalidGetterMethodReason(Method getterMethod) {
         if(getterMethod == null)
             return "Method is null.";
@@ -176,6 +251,16 @@ public class ReflectionsUtils {
             return getInvalidGetterMethodReason(getterMethod, getterMethod.getName());
     }
 
+    /**
+     * Determines if a method is a valid getter method, and determines why said method is an invalid getter
+     * method if the method is not a valid getter.
+     * @param getterMethod The method to test.
+     * @param methodName The name of the getter method, for logging reasons since getterMethod can be null.
+     * @return Null if the provided getterMethod is a valid getterMethod, otherwise a String explaining why the
+     * provided method is not a valid getter method is returned.
+     * @see #isValidGetterMethod(Method, String)
+     * @see #getInvalidGetterMethodReason(Method)
+     */
     public static String getInvalidGetterMethodReason(Method getterMethod, String methodName) {
         if(getterMethod == null)
             return "No getter method named " + methodName + " found.";
@@ -191,6 +276,13 @@ public class ReflectionsUtils {
             return null;
     }
 
+    /**
+     * Attempts to determine the name of a field based on the name of a method. This method will simply cut off the
+     * "get", "set", or "is" prefix from a method name. The resulting text, after being un-capitalized, is the field
+     * name that is returned.
+     * @param method The method to determine a field name from.
+     * @return Returns the name of the field being accessed by the given accessor method.
+     */
     public static String fieldNameFromMethodName(Method method) {
         String methodName = method.getName();
         if(methodName.startsWith("get") || methodName.startsWith("set"))
