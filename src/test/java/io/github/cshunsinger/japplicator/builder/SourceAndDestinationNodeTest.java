@@ -49,14 +49,14 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_skipCertainFieldsAndMethodsThatAreNotInterestingOrUnusable() {
         ApplicatorBuilder<TestModel, TestModel> applicatorBuilder = new ApplicatorBuilder<>(TestModel.class, TestModel.class);
-        Applicator applicator = applicatorBuilder.build();
+        Applicator<TestModel, TestModel> applicator = applicatorBuilder.build();
         String testString = RandomStringUtils.randomAlphanumeric(10);
 
         assertThat(applicator, notNullValue());
 
         TestModel model = new TestModel();
         model.setIdentifiedField(testString);
-        TestModel result = (TestModel)applicator.apply(model, null);
+        TestModel result = applicator.apply(model, null);
 
         assertThat(result, allOf(
             notNullValue(),
@@ -70,12 +70,12 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_handleEmptyTestSourceAndDestinationModel() {
         ApplicatorBuilder<EmptyTestModel, EmptyTestModel> applicatorBuilder = new ApplicatorBuilder<>(EmptyTestModel.class, EmptyTestModel.class);
-        Applicator applicator = applicatorBuilder.build();
+        Applicator<EmptyTestModel, EmptyTestModel> applicator = applicatorBuilder.build();
 
         assertThat(applicator, notNullValue());
 
         EmptyTestModel model = new EmptyTestModel();
-        EmptyTestModel result = (EmptyTestModel)applicator.apply(model, null);
+        EmptyTestModel result = applicator.apply(model, null);
 
         assertThat(result, allOf(
             notNullValue(),
@@ -86,7 +86,7 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_handleWhenThereIsNoDestinationAvailableForSourceField() {
         ApplicatorBuilder<TestModel, EmptyTestModel> applicatorBuilder = new ApplicatorBuilder<>(TestModel.class, EmptyTestModel.class);
-        Applicator applicator = applicatorBuilder.build();
+        Applicator<TestModel, EmptyTestModel> applicator = applicatorBuilder.build();
 
         assertThat(applicator, notNullValue());
 
@@ -94,7 +94,7 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         model.setIdentifiedField(RandomStringUtils.randomAlphanumeric(10));
 
         //Should not throw exception and should construct a new EmptyTestModel instance
-        EmptyTestModel empty = (EmptyTestModel)applicator.apply(model, null);
+        EmptyTestModel empty = applicator.apply(model, null);
         assertThat(empty, notNullValue());
     }
 
@@ -146,7 +146,7 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         //Applicator
         ApplicatorBuilder<TestModelWithNestingMethods, TestModelWithNestingMethods> applicatorBuilder =
             new ApplicatorBuilder<>(TestModelWithNestingMethods.class, TestModelWithNestingMethods.class);
-        Applicator applicator = applicatorBuilder.build();
+        Applicator<TestModelWithNestingMethods, TestModelWithNestingMethods> applicator = applicatorBuilder.build();
 
         //Apply source to dest
         applicator.apply(source, dest);
@@ -232,10 +232,10 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         //Create the applicator
         ApplicatorBuilder<ModelWithDifferentNestedGetterNames, ModelWithDifferentNestedGetterNames> applicatorBuilder =
             new ApplicatorBuilder<>(ModelWithDifferentNestedGetterNames.class, ModelWithDifferentNestedGetterNames.class);
-        Applicator applicator = applicatorBuilder.build();
+        Applicator<ModelWithDifferentNestedGetterNames, ModelWithDifferentNestedGetterNames> applicator = applicatorBuilder.build();
 
         //Apply
-        ModelWithDifferentNestedGetterNames dest = (ModelWithDifferentNestedGetterNames)applicator.apply(source, null);
+        ModelWithDifferentNestedGetterNames dest = applicator.apply(source, null);
 
         assertThat(dest, notNullValue());
         assertThat(dest.getNestedModel(), allOf(
