@@ -1,7 +1,7 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
-import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
 import io.github.cshunsinger.japplicator.exception.WildcardTypeUnsupportedException;
@@ -69,11 +69,11 @@ public class ArrayToAndFromCollectionValueConverterTest extends BaseUnitTest {
     @Test
     public void convertCollectionOfValuesToArrayOfValues() {
         ApplicatorBuilder<CollectionValue, ArrayValue> builder = new ApplicatorBuilder<>(CollectionValue.class, ArrayValue.class);
-        HeadOn<CollectionValue, ArrayValue> applicator = assertDoesNotThrow(builder::build);
+        Applicator<CollectionValue, ArrayValue> applicator = assertDoesNotThrow(builder::build);
 
         CollectionValue source = new CollectionValue(List.of(1, 2, 3, 4, 5));
 
-        ArrayValue destination = applicator.applyDirectlyToTheForehead(source, null);
+        ArrayValue destination = applicator.apply(source, null);
         assertThat(destination, allOf(
             notNullValue(),
             hasProperty("values", is(new double[] { 1.0, 2.0, 3.0, 4.0, 5.0 }))
@@ -83,11 +83,11 @@ public class ArrayToAndFromCollectionValueConverterTest extends BaseUnitTest {
     @Test
     public void convertArrayOfValuesToCollectionOfValues() {
         ApplicatorBuilder<ArrayValue, CollectionValue> builder = new ApplicatorBuilder<>(ArrayValue.class, CollectionValue.class);
-        HeadOn<ArrayValue, CollectionValue> applicator = assertDoesNotThrow(builder::build);
+        Applicator<ArrayValue, CollectionValue> applicator = assertDoesNotThrow(builder::build);
 
         ArrayValue source = new ArrayValue(new double[] {1.2, 2.3, 3.4, 4.5, 5.6});
 
-        CollectionValue destination = applicator.applyDirectlyToTheForehead(source, null);
+        CollectionValue destination = applicator.apply(source, null);
         assertThat(destination, allOf(
             notNullValue(),
             hasProperty("values", contains(1, 2, 3, 4, 5))

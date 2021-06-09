@@ -1,7 +1,7 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
-import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.exception.TypeConversionException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -124,14 +124,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertByteToOtherTypes() {
-        HeadOn<TestFromByte, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromByte.class, TestDestinationModel.class).build();
+        Applicator<TestFromByte, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromByte.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         byte testValue = (byte)(nextInt() % Byte.MAX_VALUE);
         byte testWrappedValue = (byte)(nextInt() % Byte.MAX_VALUE);
         TestFromByte source = new TestFromByte(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is(testValue)),
             hasProperty("wrappedByteValue", is(testWrappedValue)),
@@ -156,14 +156,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertCharacterToOtherTypes() {
-        HeadOn<TestFromCharacter, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromCharacter.class, TestDestinationModel.class).build();
+        Applicator<TestFromCharacter, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromCharacter.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         char testValue = (char)(nextInt() % Character.MAX_VALUE);
         char testWrappedValue = (char)(nextInt() % Character.MAX_VALUE);
         TestFromCharacter source = new TestFromCharacter(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -188,14 +188,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertShortToOtherTypes() {
-        HeadOn<TestFromShort, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromShort.class, TestDestinationModel.class).build();
+        Applicator<TestFromShort, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromShort.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         short testValue = (short)(nextInt() % Short.MAX_VALUE);
         short testWrappedValue = (short)(nextInt() % Short.MAX_VALUE);
         TestFromShort source = new TestFromShort(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -220,14 +220,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertIntegerToOtherTypes() {
-        HeadOn<TestFromInteger, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromInteger.class, TestDestinationModel.class).build();
+        Applicator<TestFromInteger, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromInteger.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         int testValue = nextInt();
         int testWrappedValue = nextInt();
         TestFromInteger source = new TestFromInteger(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -252,14 +252,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertLongToOtherTypes() {
-        HeadOn<TestFromLong, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromLong.class, TestDestinationModel.class).build();
+        Applicator<TestFromLong, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromLong.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         long testValue = nextLong();
         long testWrappedValue = nextLong();
         TestFromLong source = new TestFromLong(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -284,14 +284,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertFloatToOtherTypes() {
-        HeadOn<TestFromFloat, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromFloat.class, TestDestinationModel.class).build();
+        Applicator<TestFromFloat, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromFloat.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         float testValue = nextFloat();
         float testWrappedValue = nextFloat();
         TestFromFloat source = new TestFromFloat(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -316,14 +316,14 @@ public class SingleValueConverterTest {
 
     @Test
     public void convertDoubleToOtherTypes() {
-        HeadOn<TestFromDouble, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromDouble.class, TestDestinationModel.class).build();
+        Applicator<TestFromDouble, TestDestinationModel> converter = new ApplicatorBuilder<>(TestFromDouble.class, TestDestinationModel.class).build();
 
         TestDestinationModel destination = new TestDestinationModel();
         double testValue = nextDouble();
         double testWrappedValue = nextDouble();
         TestFromDouble source = new TestFromDouble(testValue, testWrappedValue);
 
-        converter.applyDirectlyToTheForehead(source, destination);
+        converter.apply(source, destination);
         assertThat(destination, allOf(
             hasProperty("byteValue", is((byte)testValue)),
             hasProperty("wrappedByteValue", is((byte)testWrappedValue)),
@@ -371,13 +371,13 @@ public class SingleValueConverterTest {
 
     @Test
     public void testConversionOfObjectToStringUsingToString() {
-        HeadOn<TestFromObject, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromObject.class, TestDestinationWithString.class).build();
+        Applicator<TestFromObject, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromObject.class, TestDestinationWithString.class).build();
 
         Object testObj = new Object();
         String expectedString = testObj.toString();
 
         TestFromObject testSource = new TestFromObject(testObj);
-        TestDestinationWithString testDestination = applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithString testDestination = applicator.apply(testSource, null);
 
         assertThat(testDestination, allOf(
             hasProperty("value", is(expectedString)),
@@ -387,13 +387,13 @@ public class SingleValueConverterTest {
 
     @Test
     public void testConversionOfCharArrayToString() {
-        HeadOn<TestFromCharArray, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromCharArray.class, TestDestinationWithString.class).build();
+        Applicator<TestFromCharArray, TestDestinationWithString> applicator = new ApplicatorBuilder<>(TestFromCharArray.class, TestDestinationWithString.class).build();
 
         String expectedString = "My Favorite Test String";
         char[] stringChars = expectedString.toCharArray();
 
         TestFromCharArray testSource = new TestFromCharArray(stringChars);
-        TestDestinationWithString testDestination = applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithString testDestination = applicator.apply(testSource, null);
 
         assertThat(testDestination, allOf(
             hasProperty("value", is(expectedString)),

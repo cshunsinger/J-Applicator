@@ -2,7 +2,7 @@ package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
-import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.annotation.Nested;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -49,14 +49,14 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_skipCertainFieldsAndMethodsThatAreNotInterestingOrUnusable() {
         ApplicatorBuilder<TestModel, TestModel> applicatorBuilder = new ApplicatorBuilder<>(TestModel.class, TestModel.class);
-        HeadOn applicator = applicatorBuilder.build();
+        Applicator applicator = applicatorBuilder.build();
         String testString = RandomStringUtils.randomAlphanumeric(10);
 
         assertThat(applicator, notNullValue());
 
         TestModel model = new TestModel();
         model.setIdentifiedField(testString);
-        TestModel result = (TestModel)applicator.applyDirectlyToTheForehead(model, null);
+        TestModel result = (TestModel)applicator.apply(model, null);
 
         assertThat(result, allOf(
             notNullValue(),
@@ -70,12 +70,12 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_handleEmptyTestSourceAndDestinationModel() {
         ApplicatorBuilder<EmptyTestModel, EmptyTestModel> applicatorBuilder = new ApplicatorBuilder<>(EmptyTestModel.class, EmptyTestModel.class);
-        HeadOn applicator = applicatorBuilder.build();
+        Applicator applicator = applicatorBuilder.build();
 
         assertThat(applicator, notNullValue());
 
         EmptyTestModel model = new EmptyTestModel();
-        EmptyTestModel result = (EmptyTestModel)applicator.applyDirectlyToTheForehead(model, null);
+        EmptyTestModel result = (EmptyTestModel)applicator.apply(model, null);
 
         assertThat(result, allOf(
             notNullValue(),
@@ -86,7 +86,7 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
     @Test
     public void test_handleWhenThereIsNoDestinationAvailableForSourceField() {
         ApplicatorBuilder<TestModel, EmptyTestModel> applicatorBuilder = new ApplicatorBuilder<>(TestModel.class, EmptyTestModel.class);
-        HeadOn applicator = applicatorBuilder.build();
+        Applicator applicator = applicatorBuilder.build();
 
         assertThat(applicator, notNullValue());
 
@@ -94,7 +94,7 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         model.setIdentifiedField(RandomStringUtils.randomAlphanumeric(10));
 
         //Should not throw exception and should construct a new EmptyTestModel instance
-        EmptyTestModel empty = (EmptyTestModel)applicator.applyDirectlyToTheForehead(model, null);
+        EmptyTestModel empty = (EmptyTestModel)applicator.apply(model, null);
         assertThat(empty, notNullValue());
     }
 
@@ -146,10 +146,10 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         //Applicator
         ApplicatorBuilder<TestModelWithNestingMethods, TestModelWithNestingMethods> applicatorBuilder =
             new ApplicatorBuilder<>(TestModelWithNestingMethods.class, TestModelWithNestingMethods.class);
-        HeadOn applicator = applicatorBuilder.build();
+        Applicator applicator = applicatorBuilder.build();
 
         //Apply source to dest
-        applicator.applyDirectlyToTheForehead(source, dest);
+        applicator.apply(source, dest);
 
         //Validate
         assertThat(dest.innerModel, allOf(
@@ -232,10 +232,10 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
         //Create the applicator
         ApplicatorBuilder<ModelWithDifferentNestedGetterNames, ModelWithDifferentNestedGetterNames> applicatorBuilder =
             new ApplicatorBuilder<>(ModelWithDifferentNestedGetterNames.class, ModelWithDifferentNestedGetterNames.class);
-        HeadOn applicator = applicatorBuilder.build();
+        Applicator applicator = applicatorBuilder.build();
 
         //Apply
-        ModelWithDifferentNestedGetterNames dest = (ModelWithDifferentNestedGetterNames)applicator.applyDirectlyToTheForehead(source, null);
+        ModelWithDifferentNestedGetterNames dest = (ModelWithDifferentNestedGetterNames)applicator.apply(source, null);
 
         assertThat(dest, notNullValue());
         assertThat(dest.getNestedModel(), allOf(

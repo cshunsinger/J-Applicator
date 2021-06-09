@@ -1,7 +1,7 @@
 package io.github.cshunsinger.japplicator.builder;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
-import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.exception.TypeConversionException;
 import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
@@ -95,10 +95,10 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void valuesFromSourceCollectionShouldBeCopiedIntoNewDestinationCollection() {
         ApplicatorBuilder<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> builder =
             new ApplicatorBuilder<>(SourceWithSimpleCollection.class, DestinationWithSimpleIntCollection.class);
-        HeadOn<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithSimpleCollection source = new SourceWithSimpleCollection(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-        DestinationWithSimpleIntCollection result = applicator.applyDirectlyToTheForehead(source, null);
+        DestinationWithSimpleIntCollection result = applicator.apply(source, null);
 
         assertThat(result, hasProperty("list", allOf(
             notNullValue(),
@@ -111,10 +111,10 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void valuesFromSourceCollectionShouldBeGivenTypeConversionForDestinationCollection() {
         ApplicatorBuilder<SourceWithSimpleCollection, DestinationWithSimpleStringCollection> builder =
             new ApplicatorBuilder<>(SourceWithSimpleCollection.class, DestinationWithSimpleStringCollection.class);
-        HeadOn<SourceWithSimpleCollection, DestinationWithSimpleStringCollection> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithSimpleCollection, DestinationWithSimpleStringCollection> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithSimpleCollection source = new SourceWithSimpleCollection(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-        DestinationWithSimpleStringCollection result = applicator.applyDirectlyToTheForehead(source, null);
+        DestinationWithSimpleStringCollection result = applicator.apply(source, null);
 
         assertThat(result, hasProperty("list", allOf(
             notNullValue(),
@@ -127,11 +127,11 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void doNotInstantiateNewCollectionInDestinationObjectIfSourceObjectHasNullValueForCollection() {
         ApplicatorBuilder<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> builder =
             new ApplicatorBuilder<>(SourceWithSimpleCollection.class, DestinationWithSimpleIntCollection.class);
-        HeadOn<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithSimpleCollection nullSource = new SourceWithSimpleCollection(null);
 
-        DestinationWithSimpleIntCollection nullResult = applicator.applyDirectlyToTheForehead(nullSource, null);
+        DestinationWithSimpleIntCollection nullResult = applicator.apply(nullSource, null);
 
         assertThat(nullResult, hasProperty("list", nullValue()));
     }
@@ -140,11 +140,11 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void instantiateNewEmptyCollectionInDestinationObjectIfSourceObjectHasEmptyCollection() {
         ApplicatorBuilder<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> builder =
             new ApplicatorBuilder<>(SourceWithSimpleCollection.class, DestinationWithSimpleIntCollection.class);
-        HeadOn<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithSimpleCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithSimpleCollection emptySource = new SourceWithSimpleCollection(emptyList());
 
-        DestinationWithSimpleIntCollection emptyResult = applicator.applyDirectlyToTheForehead(emptySource, null);
+        DestinationWithSimpleIntCollection emptyResult = applicator.apply(emptySource, null);
 
         assertThat(emptyResult, hasProperty("list", allOf(
             notNullValue(),
@@ -178,7 +178,7 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void convertSourceCollectionOfCollectionsIntoDestinationCollectionOfCollections_noElementTypeConversion() {
         ApplicatorBuilder<SourceWithNestedCollections, DestinationWithNestedIntCollections> builder =
             new ApplicatorBuilder<>(SourceWithNestedCollections.class, DestinationWithNestedIntCollections.class);
-        HeadOn<SourceWithNestedCollections, DestinationWithNestedIntCollections> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithNestedCollections, DestinationWithNestedIntCollections> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithNestedCollections source = new SourceWithNestedCollections(
             List.of(
@@ -188,7 +188,7 @@ public class CollectionValueConverterTest extends BaseUnitTest {
             )
         );
 
-        DestinationWithNestedIntCollections result = applicator.applyDirectlyToTheForehead(source, null);
+        DestinationWithNestedIntCollections result = applicator.apply(source, null);
         assertThat(result, hasProperty("nestedSets", allOf(
             notNullValue(),
             instanceOf(HashSet.class),
@@ -213,7 +213,7 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void convertSourceCollectionOfCollectionsIntoDestinationCollectionOfCollections_withElementTypeConversion() {
         ApplicatorBuilder<SourceWithNestedCollections, DestinationWithNestedLongCollections> builder =
             new ApplicatorBuilder<>(SourceWithNestedCollections.class, DestinationWithNestedLongCollections.class);
-        HeadOn<SourceWithNestedCollections, DestinationWithNestedLongCollections> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceWithNestedCollections, DestinationWithNestedLongCollections> applicator = assertDoesNotThrow(builder::build);
 
         SourceWithNestedCollections source = new SourceWithNestedCollections(
             List.of(
@@ -223,7 +223,7 @@ public class CollectionValueConverterTest extends BaseUnitTest {
             )
         );
 
-        DestinationWithNestedLongCollections result = applicator.applyDirectlyToTheForehead(source, null);
+        DestinationWithNestedLongCollections result = applicator.apply(source, null);
         assertThat(result, hasProperty("nestedSets", allOf(
             notNullValue(),
             instanceOf(ArrayList.class),
@@ -255,10 +255,10 @@ public class CollectionValueConverterTest extends BaseUnitTest {
     public void useSourceConcreteTypeWhenAssignableToNonConcreteDestinationType() {
         ApplicatorBuilder<SourceConcreteCollection, DestinationWithSimpleIntCollection> builder =
             new ApplicatorBuilder<>(SourceConcreteCollection.class, DestinationWithSimpleIntCollection.class);
-        HeadOn<SourceConcreteCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
+        Applicator<SourceConcreteCollection, DestinationWithSimpleIntCollection> applicator = assertDoesNotThrow(builder::build);
 
         SourceConcreteCollection source = new SourceConcreteCollection(new LinkedList<>(List.of(1, 2, 3, 4, 5)));
-        DestinationWithSimpleIntCollection result = applicator.applyDirectlyToTheForehead(source, null);
+        DestinationWithSimpleIntCollection result = applicator.apply(source, null);
 
         assertThat(result, hasProperty("list", allOf(
             notNullValue(),

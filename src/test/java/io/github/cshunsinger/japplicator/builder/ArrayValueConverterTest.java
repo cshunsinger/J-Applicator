@@ -1,6 +1,6 @@
 package io.github.cshunsinger.japplicator.builder;
 
-import io.github.cshunsinger.japplicator.HeadOn;
+import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +31,7 @@ public class ArrayValueConverterTest {
 
     @Test
     public void test_conversionOfArrayOfValuesIntoAnotherArrayOfValues() {
-        HeadOn<TestSourceWithArray, TestDestinationWithArray> applicator =
+        Applicator<TestSourceWithArray, TestDestinationWithArray> applicator =
             new ApplicatorBuilder<>(TestSourceWithArray.class, TestDestinationWithArray.class).build();
 
         int[] testValues = new int[] {
@@ -39,7 +39,7 @@ public class ArrayValueConverterTest {
         };
         TestSourceWithArray testSource = new TestSourceWithArray(testValues);
 
-        TestDestinationWithArray result = applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithArray result = applicator.apply(testSource, null);
         assertThat(result, allOf(
             notNullValue(),
             hasProperty("ints", is(testValues)),
@@ -49,12 +49,12 @@ public class ArrayValueConverterTest {
 
     @Test
     public void test_conversionOfEmptyArrayOfValuesIntoAnotherEmptyArrayOfValues() {
-        HeadOn<TestSourceWithArray, TestDestinationWithArray> applicator =
+        Applicator<TestSourceWithArray, TestDestinationWithArray> applicator =
             new ApplicatorBuilder<>(TestSourceWithArray.class, TestDestinationWithArray.class).build();
 
         TestSourceWithArray testSource = new TestSourceWithArray(new int[0]);
 
-        TestDestinationWithArray result = applicator.applyDirectlyToTheForehead(testSource, null);
+        TestDestinationWithArray result = applicator.apply(testSource, null);
         assertThat(result.getInts().length, is(0));
         assertThat(result.getStrings().length, is(0));
     }
