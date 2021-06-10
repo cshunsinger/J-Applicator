@@ -52,9 +52,11 @@ public class ApplicatorCacheTable {
      * @return An instance of an Applicator which will apply values from a source object onto a destination object.
      */
     <Src, Dest> Applicator<Src, Dest> createApplicator(Class<Src> srcType, Class<Dest> destType) {
+        Applicator<Src, Dest> applicator;
         synchronized(parent) {
-            return parent.getApplicator(srcType, destType);
+            applicator = parent.getApplicator(srcType, destType);
         }
+        return applicator;
     }
 
     @SuppressWarnings("unchecked")

@@ -19,8 +19,8 @@ public class ApplicatorCache {
      */
     public static final ApplicatorCache instance = new ApplicatorCache();
 
-    private final ParentApplicatorCacheTable parentCache;
-    private final ThreadLocal<ApplicatorCacheTable> threadCache;
+    final ParentApplicatorCacheTable parentCache;
+    final ThreadLocal<ApplicatorCacheTable> threadCache;
 
     private ApplicatorCache() {
         this.parentCache = new ParentApplicatorCacheTable();
