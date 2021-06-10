@@ -20,9 +20,6 @@ public abstract class Applicator<Src, Dest> {
      * @param to The object to which the data will be applied.
      * @return The `to` reference if `to` is not null. If `to` is null, and if a new instance of `Dest` could be created,
      * then a new instance of `Dest` is returned.
-     * @see #apply(Src from)
-     * @see #applyValues(Src from, Dest to)
-     * @see #applyValues(Src from, Class destClass)
      */
     public abstract Dest apply(Src from, Dest to);
 
@@ -32,9 +29,6 @@ public abstract class Applicator<Src, Dest> {
      * will be created, and it will be populated with values from the source object provided in this method.
      * @param from The source object.
      * @return A new instance of the destination object with values applied from the source object.
-     * @see #apply(Src from, Dest to)
-     * @see #applyValues(Src from, Dest to)
-     * @see #applyValues(Src from, Class destClass)
      */
     public Dest apply(Src from) {
         return this.apply(from, null);

@@ -50,7 +50,7 @@ public class ApplicatorTest {
         TestDestinationModel destination = new TestDestinationModel();
 
         //Apply values onto instantiated destination instance
-        Applicator.applyValues(source, destination);
+        destination = Applicator.applyValues(source, destination);
         assertThat(destination, hasProperty("testValue", is(testValue)));
     }
 
