@@ -1,8 +1,10 @@
-package io.github.cshunsinger.japplicator.builder;
+package io.github.cshunsinger.japplicator.converters;
 
 import io.github.cshunsinger.japplicator.BaseUnitTest;
 import io.github.cshunsinger.japplicator.Applicator;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
+import io.github.cshunsinger.japplicator.builder.ApplicatorBuilder;
+import io.github.cshunsinger.japplicator.converters.CollectionValueConverter;
 import io.github.cshunsinger.japplicator.exception.TypeConversionException;
 import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;
 import io.github.cshunsinger.japplicator.exception.WildcardTypeUnsupportedException;

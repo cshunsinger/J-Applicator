@@ -1,7 +1,8 @@
-package io.github.cshunsinger.japplicator.builder;
+package io.github.cshunsinger.japplicator.converters;
 
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.Applicator;
+import io.github.cshunsinger.japplicator.builder.ApplicatorBuilder;
 import io.github.cshunsinger.japplicator.exception.TypeConversionException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

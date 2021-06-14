@@ -1,4 +1,4 @@
-package io.github.cshunsinger.japplicator.builder;
+package io.github.cshunsinger.japplicator.converters;
 
 import io.github.cshunsinger.asmsauce.code.CodeInsnBuilderLike;
 import io.github.cshunsinger.japplicator.exception.TypeVariableUnsupportedException;

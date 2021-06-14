@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
