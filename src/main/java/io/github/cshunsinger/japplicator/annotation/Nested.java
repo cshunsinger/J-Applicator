@@ -22,4 +22,11 @@ public @interface Nested {
      *    an attempt to find a getter method that is annotated with the same value String will be made.
      */
     String value() default "";
+
+    /**
+     * This property defines a prefix for any fields identified inside of the nested object.
+     * For example, if the prefix is "hello", and a field exists inside of the nested class identified as "world",
+     * then the full name of the identified field will be "helloworld".
+     */
+    String prefix() default "";
 }

@@ -251,4 +251,73 @@ public class SourceAndDestinationNodeTest extends BaseUnitTest {
             hasProperty("explicitTestString", is(explicitTestString))
         ));
     }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SourceNestedPrefix {
+        @FieldIdentifier("First")
+        private String first;
+        @FieldIdentifier("Second")
+        private String second;
+    }
+
+    @Getter @Setter
+    @FieldIdentifier
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SourceWithPrefixedNested {
+        @Nested(prefix = "nested")
+        private SourceNestedPrefix nested;
+        @Nested(prefix = "otherNested")
+        private SourceNestedPrefix otherNested;
+    }
+
+    @Getter @Setter
+    @FieldIdentifier
+    @NoArgsConstructor
+    public static class FlatDestinationFromNested {
+        private String nestedFirst;
+        private String nestedSecond;
+        private String otherNestedFirst;
+        private String otherNestedSecond;
+    }
+
+    @Test
+    public void usePrefixesWhenApplyingNestedValues_fromNestedToFlatObject() {
+        SourceNestedPrefix firstNested = new SourceNestedPrefix("first", "second");
+        SourceNestedPrefix secondNested = new SourceNestedPrefix("third", "fourth");
+        SourceWithPrefixedNested source = new SourceWithPrefixedNested(firstNested, secondNested);
+
+        FlatDestinationFromNested result = Applicator.applyValues(source, FlatDestinationFromNested.class);
+        assertThat(result, allOf(
+            notNullValue(),
+            hasProperty("nestedFirst", is("first")),
+            hasProperty("nestedSecond", is("second")),
+            hasProperty("otherNestedFirst", is("third")),
+            hasProperty("otherNestedSecond", is("fourth"))
+        ));
+    }
+
+    @Test
+    public void usePrefixesWhenApplyingNestedValues_fromNestedToAnotherNested() {
+        SourceNestedPrefix firstNested = new SourceNestedPrefix("first", "second");
+        SourceNestedPrefix secondNested = new SourceNestedPrefix("third", "fourth");
+        SourceWithPrefixedNested source = new SourceWithPrefixedNested(firstNested, secondNested);
+
+        SourceWithPrefixedNested result = Applicator.applyValues(source, SourceWithPrefixedNested.class);
+        assertThat(result, allOf(
+            notNullValue(),
+            hasProperty("nested", allOf(
+                notNullValue(),
+                hasProperty("first", is("first")),
+                hasProperty("second", is("second"))
+            )),
+            hasProperty("otherNested", allOf(
+                notNullValue(),
+                hasProperty("first", is("third")),
+                hasProperty("second", is("fourth"))
+            ))
+        ));
+    }
 }

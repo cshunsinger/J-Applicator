@@ -4,6 +4,7 @@ import io.github.cshunsinger.asmsauce.code.CodeInsnBuilderLike;
 import io.github.cshunsinger.japplicator.annotation.FieldIdentifier;
 import io.github.cshunsinger.japplicator.annotation.Nested;
 import io.github.cshunsinger.japplicator.util.ReflectionsUtils;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +75,7 @@ public class SourceNode {
                 .collect(Collectors.toList());
 
             if(destinationCodeBuilders.isEmpty())
-                return null;
+                return block();
 
             if(getter.getReturnType().isPrimitive()) {
                 /*
@@ -108,13 +109,19 @@ public class SourceNode {
         }
     }
 
-    public static List<SourceNode> createSources(Class<?> type) {
+    public static List<SourceNode> createSources(@NonNull Class<?> type) {
+        return createSources(type, "");
+    }
+
+    public static List<SourceNode> createSources(@NonNull Class<?> type, @NonNull String fieldIdentifiedPrefix) {
         FieldIdentifier defaults = type.getAnnotation(FieldIdentifier.class);
         Stream<SourceNode> fieldNodes = Stream.of(type.getDeclaredFields())
             .map(field -> {
                 String identifierName = memberIdentifierName(field, defaults);
                 if(identifierName == null)
                     return null;
+                else
+                    identifierName = fieldIdentifiedPrefix + identifierName;
 
                 Method getterMethod = findGetterMethodForField(type, field);
                 if(getterMethod == null) {
@@ -131,6 +138,8 @@ public class SourceNode {
                 String identifierName = memberIdentifierName(method, null);
                 if(identifierName == null)
                     return null;
+                else
+                    identifierName = fieldIdentifiedPrefix + identifierName;
 
                 log.info("Found getter method {} identified as {}.", method.getName(), identifierName);
                 return new SourceNode(identifierName, method);
@@ -147,7 +156,8 @@ public class SourceNode {
 
                 log.info("Found @Nested field {}.", field.getName());
                 Class<?> nestedType = field.getType();
-                List<SourceNode> nestedSources = createSources(nestedType);
+                String nestedPrefix = field.getAnnotation(Nested.class).prefix();
+                List<SourceNode> nestedSources = createSources(nestedType, fieldIdentifiedPrefix + nestedPrefix);
                 return nestedSources.isEmpty() ? null : new SourceNode(null, getterMethod, nestedSources);
             });
         Stream<SourceNode> nestedMethods = Stream.of(type.getDeclaredMethods())
@@ -155,7 +165,8 @@ public class SourceNode {
             .filter(method -> ReflectionsUtils.getInvalidGetterMethodReason(method) == null)
             .map(method -> {
                 Class<?> nestedType = method.getReturnType();
-                List<SourceNode> nestedSources = createSources(nestedType);
+                String nestedPrefix = method.getAnnotation(Nested.class).prefix();
+                List<SourceNode> nestedSources = createSources(nestedType, fieldIdentifiedPrefix + nestedPrefix);
                 return nestedSources.isEmpty() ? null : new SourceNode(null, method, nestedSources);
             });
 

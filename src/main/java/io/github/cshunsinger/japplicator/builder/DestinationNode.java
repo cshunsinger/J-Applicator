@@ -171,12 +171,28 @@ public class DestinationNode {
     private static Stream<DestinationNode> generateNestedNodes(String fieldName, Class<?> type) {
         Stream<DestinationNode> nestedFieldNodes = Stream.of(type.getDeclaredFields())
             .filter(field -> field.isAnnotationPresent(Nested.class))
-            .map(field -> generateNestedNode(fieldName, type, field))
+            .map(field -> {
+                Nested annotation = field.getAnnotation(Nested.class);
+                //Source field name must start with the prefix of the @Nested annotation otherwise none of the nested
+                //members could possibly be the destination members.
+                String nestedPrefix = annotation.prefix();
+                return fieldName.startsWith(nestedPrefix) ?
+                    generateNestedNode(fieldName.substring(nestedPrefix.length()), type, field)
+                    : null;
+            })
             .filter(Objects::nonNull);
 
         Stream<DestinationNode> nestedMethodNodes = findNestedMethods(type)
             .filter(method -> ReflectionsUtils.getInvalidGetterMethodReason(method) == null)
-            .map(method -> generateNestedNode(fieldName, type, method))
+            .map(method -> {
+                Nested annotation = method.getAnnotation(Nested.class);
+                //Source field name must start with the prefix of the @Nested annotation otherwise none of the nested
+                //members could possibly be the destination members.
+                String nestedPrefix = annotation.prefix();
+                return fieldName.startsWith(nestedPrefix) ?
+                    generateNestedNode(fieldName.substring(nestedPrefix.length()), type, method)
+                    : null;
+            })
             .filter(Objects::nonNull);
 
         return Stream.concat(nestedFieldNodes, nestedMethodNodes);
